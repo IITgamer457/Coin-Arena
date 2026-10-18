@@ -31,7 +31,7 @@
     });
     renderBtn.disabled=busy||!videoInput.files?.[0]||!captions.some(c=>c.text.trim());
   }
-  function setProgress(prefix,pct,label){$(prefix+'ProgressWrap').classList.remove('hidden');$(prefix+'ProgressBar').style.width=Math.max(0,Math.min(100,pct))+'%';$(prefix+'ProgressPercent').textContent=Math.round(pct)+'%';$(prefix+'ProgressLabel').textContent=label;}
+  function setProgress(prefix,pct,label){const base=prefix==='render'?'renderProgress':'progress';$(base+'Wrap').classList.remove('hidden');$(base+'Bar').style.width=Math.max(0,Math.min(100,pct))+'%';$(base+'Percent').textContent=Math.round(pct)+'%';$(base+'Label').textContent=label;}
   function useFile(file){
     if(!file)return;if(!file.type.startsWith('video/'))return notify('Please choose a video file.');
     if(file.size>300*1024*1024&&!confirm('This video is over 300 MB and may exceed browser memory. Continue?'))return;
@@ -57,7 +57,7 @@
     ffmpeg=engine;return engine;
   }
   async function extractAudio(file){
-    const engine=await loadFfmpeg(p=>setProgress(' ',p,'Preparing audio…').catch?.(()=>{}));
+    const engine=await loadFfmpeg(p=>setProgress('',p,'Preparing audio…'));
     const ext=(file.name.split('.').pop()||'mp4').replace(/[^a-z0-9]/gi,'').toLowerCase();
     await engine.writeFile('input.'+ext,new Uint8Array(await file.arrayBuffer()));
     await engine.exec(['-i','input.'+ext,'-vn','-ac','1','-ar','16000','-c:a','pcm_s16le','audio.wav']);
