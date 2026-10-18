@@ -4,40 +4,50 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#10111a" />
-  <meta name="description" content="CaptionCraft — create, edit and export video subtitles." />
-  <title>CaptionCraft — Auto captions for every creator</title>
+  <meta name="description" content="CaptionCraft — automatically transcribe videos, style captions, and export captioned videos." />
+  <title>CaptionCraft — Automatic video captions</title>
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
   <div class="app-shell">
     <header class="topbar">
       <a class="brand" href="#" aria-label="CaptionCraft home"><span class="brand-mark">CC</span><span>caption<span class="brand-light">craft</span></span></a>
-      <div class="top-actions"><span class="free-pill"><span class="status-dot"></span> Free workspace</span><a class="help-link" href="#how-it-works">How it works</a></div>
+      <div class="top-actions"><span class="free-pill"><span class="status-dot"></span> Browser workspace</span><a class="help-link" href="#how-it-works">How it works</a></div>
     </header>
     <main>
-      <section class="hero"><div class="eyebrow"><span class="spark">✦</span> YOUR VIDEO. EVERY WORD.</div><h1>Make every word<br /><span class="gradient-text">impossible to miss.</span></h1><p class="hero-copy">A simple workspace to preview videos, create and edit captions, and export subtitles — built for creators on any device.</p></section>
+      <section class="hero"><div class="eyebrow"><span class="spark">✦</span> YOUR VIDEO. EVERY WORD.</div><h1>Make every word<br /><span class="gradient-text">impossible to miss.</span></h1><p class="hero-copy">Upload a video, generate a transcript, choose a caption look, then export a video with subtitles burned in. Processing happens in your browser; large videos may be slow on phones.</p></section>
       <section class="workspace">
-        <div class="workspace-head"><div><span class="step-label">WORKSPACE</span><h2>Create captions</h2></div><button class="reset-btn" id="resetBtn" type="button">Reset project ↺</button></div>
+        <div class="workspace-head"><div><span class="step-label">WORKSPACE</span><h2>Create your captioned video</h2></div><button class="reset-btn" id="resetBtn" type="button">Reset ↺</button></div>
         <div class="workspace-grid">
           <section class="panel source-panel">
-            <div class="panel-title"><span class="number">01</span><div><h3>Add your video</h3><p>Shorts, Reels or long-form video</p></div></div>
-            <label class="upload-zone" id="dropZone" for="videoInput"><input id="videoInput" type="file" accept="video/*" /><span class="upload-icon">↑</span><strong>Choose a video</strong><span class="muted">or drag and drop it here</span><span class="file-types">MP4 · MOV · WEBM</span></label>
-            <div id="videoMeta" class="video-meta hidden"></div><video id="videoPreview" class="video-preview hidden" controls playsinline></video>
-            <div class="field-group"><label for="languageSelect">Speech language</label><select id="languageSelect"><option value="en-IN">English (India)</option><option value="hi-IN">Hindi</option><option value="hinglish">Hinglish (Hindi + English · experimental)</option><option value="mr-IN">Marathi</option><option value="en-US">English (US)</option><option value="bn-IN">Bengali</option><option value="ta-IN">Tamil</option><option value="te-IN">Telugu</option><option value="ur-PK">Urdu</option></select><p class="field-hint">Availability depends on your browser and device.</p></div>
-            <div class="notice"><span>ⓘ</span><p><strong>Current free mode</strong><br />This browser demo captions speech from your microphone. It does not yet transcribe the uploaded video's audio automatically.</p></div>
+            <div class="panel-title"><span class="number">01</span><div><h3>Upload your video</h3><p>MP4, MOV or WebM</p></div></div>
+            <label class="upload-zone" id="dropZone" for="videoInput"><input id="videoInput" type="file" accept="video/mp4,video/webm,video/quicktime,video/*" /><span class="upload-icon">↑</span><strong>Choose a video</strong><span class="muted">or drag and drop it here</span><span class="file-types">Your original stays on this device</span></label>
+            <div id="videoMeta" class="video-meta hidden"></div>
+            <video id="videoPreview" class="video-preview hidden" controls playsinline></video>
+            <div class="field-group"><label for="languageSelect">Spoken language</label><select id="languageSelect"><option value="english">English</option><option value="hindi">Hindi</option><option value="marathi">Marathi</option><option value="bengali">Bengali</option><option value="tamil">Tamil</option><option value="telugu">Telugu</option><option value="urdu">Urdu</option><option value="auto">Auto / multilingual (best effort)</option></select><p class="field-hint">Transcription model downloads on first use. Keep this page open and connected to the internet.</p></div>
+            <div class="field-group"><label for="styleSelect">Caption style</label><select id="styleSelect"><option value="creator">Creator bold — white with dark outline</option><option value="yellow">Viral yellow highlight</option><option value="clean">Clean white subtitles</option><option value="boxed">Bold text in dark box</option><option value="karaoke">Karaoke-style emphasis</option></select></div>
+            <div class="field-group"><label for="positionSelect">Caption position</label><select id="positionSelect"><option value="bottom">Bottom</option><option value="middle">Middle</option><option value="top">Top</option></select></div>
+            <div class="field-group"><label for="fontSizeSelect">Caption size</label><select id="fontSizeSelect"><option value="24">Small</option><option value="32" selected>Medium</option><option value="42">Large / Shorts</option></select></div>
+            <div class="notice"><span>ⓘ</span><p><strong>Private browser processing</strong><br />Video/audio is processed on your device for transcription and rendering. This can use substantial memory; start with a short clip on mobile.</p></div>
           </section>
           <section class="panel editor-panel">
-            <div class="panel-title"><span class="number">02</span><div><h3>Build your transcript</h3><p>Edit lines and adjust subtitle timing</p></div></div>
-            <div class="speech-box"><div class="speech-status"><span id="micIndicator" class="mic-indicator"></span><span id="speechStatus">Ready to listen</span></div><button id="micBtn" class="mic-btn" type="button"><span>🎙</span> Start microphone captions</button><button id="polishBtn" class="export-btn secondary-btn polish-btn" type="button">✦ Improve transcript with Nemotron</button><p class="field-hint">Optional AI cleanup for existing caption text. Requires your own NVIDIA API key configured securely in a Cloudflare Worker.</p><p class="field-hint">Allow microphone access when your browser asks. Works only in supported browsers, usually over HTTPS.</p></div>
+            <div class="panel-title"><span class="number">02</span><div><h3>Generate and edit captions</h3><p>Speech recognition with word timestamps</p></div></div>
+            <button id="generateBtn" class="generate-btn" type="button" disabled>✦ Generate automatic captions</button>
+            <div class="progress-wrap hidden" id="progressWrap"><div class="progress-top"><span id="progressLabel">Preparing…</span><span id="progressPercent">0%</span></div><div class="progress-track"><div id="progressBar"></div></div></div>
+            <p class="field-hint" id="processHint">Select a video first. The first run downloads the speech model, which may be large.</p>
             <div class="caption-toolbar"><span id="captionCount">0 caption lines</span><div class="toolbar-actions"><button id="addLineBtn" class="small-btn" type="button">＋ Add line</button><button id="clearBtn" class="small-btn quiet-btn" type="button">Clear</button></div></div>
-            <div id="emptyState" class="empty-state"><span class="empty-symbol">Aa</span><strong>Your captions will appear here</strong><p>Start microphone captions or add a line manually to begin editing.</p></div><div id="captionList" class="caption-list"></div><div class="editor-footer"><span>Tip: use timestamps in seconds, e.g. 2.5</span><span id="saveStatus">Stored in this tab only</span></div>
+            <div id="emptyState" class="empty-state"><span class="empty-symbol">Aa</span><strong>Your transcript will appear here</strong><p>Upload a video and generate captions, or add a line manually.</p></div>
+            <div id="captionList" class="caption-list"></div>
+            <div class="editor-footer"><span>Times are seconds</span><span id="saveStatus">Local session only</span></div>
+            <button id="polishBtn" class="export-btn secondary-btn polish-btn" type="button">✦ Improve text with NVIDIA Nemotron</button>
+            <p class="field-hint">Optional cleanup uses your Cloudflare Worker secret. Never paste your API key here.</p>
           </section>
         </div>
-        <section class="export-panel"><div class="export-copy"><span class="number">03</span><div><h3>Export subtitles</h3><p>Download a subtitle file and use it in your video editor.</p></div></div><div class="export-actions"><button id="exportSrt" class="export-btn primary-btn" type="button">↓ Export .SRT</button><button id="exportVtt" class="export-btn secondary-btn" type="button">↓ Export .VTT</button></div></section>
+        <section class="export-panel"><div class="export-copy"><span class="number">03</span><div><h3>Preview and export</h3><p>Burn the selected style into the video, or export subtitle files.</p></div></div><div class="export-actions"><button id="renderBtn" class="export-btn primary-btn" type="button" disabled>🎬 Render captioned MP4</button><button id="exportSrt" class="export-btn secondary-btn" type="button">↓ SRT</button><button id="exportVtt" class="export-btn secondary-btn" type="button">↓ VTT</button></div><div class="progress-wrap hidden" id="renderProgressWrap"><div class="progress-top"><span id="renderProgressLabel">Preparing render…</span><span id="renderProgressPercent">0%</span></div><div class="progress-track"><div id="renderProgressBar"></div></div></div><p id="renderHint" class="field-hint">MP4 rendering runs on this device and may take longer than the video duration. If this phone runs out of memory, try a shorter or lower-resolution clip.</p><a id="downloadVideo" class="download-video hidden" download="captioncraft-captioned.mp4">Download captioned video ↓</a></section>
       </section>
-      <section class="how-section" id="how-it-works"><div class="eyebrow">SIMPLE BY DESIGN</div><h2>From speech to subtitles.</h2><div class="how-grid"><article><span>01</span><h3>Add a video</h3><p>Preview your local video in the workspace. Your video stays in your browser.</p></article><article><span>02</span><h3>Create & refine</h3><p>Use supported browser speech recognition or add lines manually. Edit text and timings.</p></article><article><span>03</span><h3>Export anywhere</h3><p>Download standard SRT or VTT subtitle files for your editing workflow.</p></article></div></section>
+      <section class="how-section" id="how-it-works"><div class="eyebrow">SIMPLE BY DESIGN</div><h2>From video to styled captions.</h2><div class="how-grid"><article><span>01</span><h3>Upload</h3><p>Select a video file. It is previewed locally in your browser.</p></article><article><span>02</span><h3>Transcribe & style</h3><p>Speech recognition creates timed caption lines. Edit text and choose a visual style.</p></article><article><span>03</span><h3>Render & download</h3><p>Burn subtitles into an MP4 when your browser supports the required codecs and filters. SRT/VTT export is also available.</p></article></div></section>
     </main>
-    <footer><a class="brand footer-brand" href="#"><span class="brand-mark">CC</span><span>caption<span class="brand-light">craft</span></span></a><span>Free MVP · No paid API key required</span></footer>
+    <footer><a class="brand footer-brand" href="#"><span class="brand-mark">CC</span><span>caption<span class="brand-light">craft</span></span></a><span>Browser-based MVP · No separate video server</span></footer>
   </div>
   <div id="toast" role="status" aria-live="polite" class="toast"></div>
   <script src="./config.js"></script><script src="./app.js"></script>
