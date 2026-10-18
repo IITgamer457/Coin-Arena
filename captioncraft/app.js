@@ -92,7 +92,7 @@
     try{
       await media.play();
       // Safety timeout for files that fail to signal ended.
-      await Promise.race([playbackEnded,new Promise((_,reject)=>setTimeout(()=>reject(new Error('Audio extraction took too long. Try a shorter video.')),Math.max(120000,(duration||30)*3000))]);
+      await Promise.race([playbackEnded,new Promise((_,reject)=>setTimeout(()=>reject(new Error('Audio extraction took too long. Try a shorter video.')),Math.max(120000,(duration||30)*3000)))]);
     }catch(e){
       if(recorder.state!=='inactive')recorder.stop();
       await stopped.catch(()=>{});
