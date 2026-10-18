@@ -57,17 +57,61 @@
     ffmpeg=engine;return engine;
   }
   async function extractAudio(file){
-    const engine=await loadFfmpeg(p=>setProgress('',p,'Preparing audio…'));
-    const ext=(file.name.split('.').pop()||'mp4').replace(/[^a-z0-9]/gi,'').toLowerCase();
-    await engine.writeFile('input.'+ext,new Uint8Array(await file.arrayBuffer()));
-    await engine.exec(['-i','input.'+ext,'-vn','-ac','1','-ar','16000','-c:a','pcm_s16le','audio.wav']);
-    const wav=await engine.readFile('audio.wav');
-    const ctx=new (window.AudioContext||window.webkitAudioContext)();
-    const decoded=await ctx.decodeAudioData(wav.buffer.slice(wav.byteOffset,wav.byteOffset+wav.byteLength));
+    // Extract audio through browser-native media APIs. This avoids creating a
+    // cross-origin FFmpeg Web Worker, which browsers block on Pages domains.
+    const media=videoPreview;
+    if(!media.src)throw new Error('Please select a video first.');
+    const AudioCtx=window.AudioContext||window.webkitAudioContext;
+    if(!AudioCtx)throw new Error('This browser does not support Web Audio. Try Chrome.');
+    const ctx=new AudioCtx();
+    await ctx.resume();
+    let source;
+    try{source=ctx.createMediaElementSource(media);}catch(e){await ctx.close();throw new Error('Audio extraction could not initialize. Reset the project and select the video again.');}
+    const destination=ctx.createMediaStreamDestination();
+    source.connect(destination);
+    // Keep the video audible to the recording graph but do not play it through
+    // the phone speaker while extracting.
+    const silent=ctx.createGain();silent.gain.value=0;source.connect(silent);silent.connect(ctx.destination);
+    const stream=destination.stream;
+    if(!window.MediaRecorder){source.disconnect();await ctx.close();throw new Error('MediaRecorder is unavailable in this browser.');}
+    const mime=['audio/webm;codecs=opus','audio/mp4','audio/webm'].find(t=>MediaRecorder.isTypeSupported(t));
+    const recorder=new MediaRecorder(stream,mime?{mimeType:mime}:undefined);
+    const chunks=[];
+    recorder.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data);};
+    const stopped=new Promise((resolve,reject)=>{recorder.onstop=resolve;recorder.onerror=()=>reject(new Error('Browser audio capture failed.'));});
+    const wasMuted=media.muted,oldTime=media.currentTime;
+    media.muted=true;
+    media.currentTime=0;
+    await new Promise((resolve,reject)=>{if(media.readyState>=2)return resolve();media.addEventListener('loadeddata',resolve,{once:true});media.addEventListener('error',()=>reject(new Error('Video could not be decoded by this browser.')),{once:true});});
+    recorder.start(500);
+    const duration=Number.isFinite(media.duration)?media.duration:0;
+    const playbackEnded=new Promise((resolve,reject)=>{
+      media.addEventListener('ended',resolve,{once:true});
+      media.addEventListener('error',()=>reject(new Error('Video playback failed while extracting audio.')),{once:true});
+    });
+    try{
+      await media.play();
+      // Safety timeout for files that fail to signal ended.
+      await Promise.race([playbackEnded,new Promise((_,reject)=>setTimeout(()=>reject(new Error('Audio extraction took too long. Try a shorter video.')),Math.max(120000,(duration||30)*3000))]);
+    }catch(e){
+      if(recorder.state!=='inactive')recorder.stop();
+      await stopped.catch(()=>{});
+      source.disconnect();await ctx.close();media.pause();media.muted=wasMuted;
+      throw e;
+    }
+    if(recorder.state!=='inactive')recorder.stop();
+    await stopped;
+    const blob=new Blob(chunks,{type:recorder.mimeType||'audio/webm'});
+    source.disconnect();silent.disconnect();await ctx.close();media.pause();media.currentTime=oldTime;media.muted=wasMuted;
+    if(!blob.size)throw new Error('No audio track could be extracted from this video.');
+    const decodeCtx=new AudioCtx();
+    const decoded=await decodeCtx.decodeAudioData(await blob.arrayBuffer());
     const offline=new OfflineAudioContext(1,Math.ceil(decoded.duration*16000),16000);
-    const source=offline.createBufferSource();source.buffer=decoded;source.connect(offline.destination);source.start();
-    const audio=await offline.startRendering();const data=audio.getChannelData(0).slice();await ctx.close();
-    return {data,duration:decoded.duration};
+    const audioSource=offline.createBufferSource();audioSource.buffer=decoded;
+    const mono=offline.createGain();mono.gain.value=1;audioSource.connect(mono);mono.connect(offline.destination);audioSource.start();
+    const resampled=await offline.startRendering();const data=resampled.getChannelData(0).slice();
+    await decodeCtx.close();
+    return {data,duration:duration||decoded.duration};
   }
   function languageForWhisper(v){return ({english:'english',hindi:'hindi',marathi:'marathi',bengali:'bengali',tamil:'tamil',telugu:'telugu',urdu:'urdu',auto:undefined})[v];}
   function chunksToCaptions(chunks,duration){
