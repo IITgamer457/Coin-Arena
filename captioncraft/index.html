@@ -1,1 +1,45 @@
-<!doctype html><html><head><meta charset="utf-8"><title>CaptionCraft</title></head><body><h1>CaptionCraft</h1><p>CaptionCraft project files are being added.</p></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#10111a" />
+  <meta name="description" content="CaptionCraft — create, edit and export video subtitles." />
+  <title>CaptionCraft — Auto captions for every creator</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="CaptionCraft home"><span class="brand-mark">CC</span><span>caption<span class="brand-light">craft</span></span></a>
+      <div class="top-actions"><span class="free-pill"><span class="status-dot"></span> Free workspace</span><a class="help-link" href="#how-it-works">How it works</a></div>
+    </header>
+    <main>
+      <section class="hero"><div class="eyebrow"><span class="spark">✦</span> YOUR VIDEO. EVERY WORD.</div><h1>Make every word<br /><span class="gradient-text">impossible to miss.</span></h1><p class="hero-copy">A simple workspace to preview videos, create and edit captions, and export subtitles — built for creators on any device.</p></section>
+      <section class="workspace">
+        <div class="workspace-head"><div><span class="step-label">WORKSPACE</span><h2>Create captions</h2></div><button class="reset-btn" id="resetBtn" type="button">Reset project ↺</button></div>
+        <div class="workspace-grid">
+          <section class="panel source-panel">
+            <div class="panel-title"><span class="number">01</span><div><h3>Add your video</h3><p>Shorts, Reels or long-form video</p></div></div>
+            <label class="upload-zone" id="dropZone" for="videoInput"><input id="videoInput" type="file" accept="video/*" /><span class="upload-icon">↑</span><strong>Choose a video</strong><span class="muted">or drag and drop it here</span><span class="file-types">MP4 · MOV · WEBM</span></label>
+            <div id="videoMeta" class="video-meta hidden"></div><video id="videoPreview" class="video-preview hidden" controls playsinline></video>
+            <div class="field-group"><label for="languageSelect">Speech language</label><select id="languageSelect"><option value="en-IN">English (India)</option><option value="hi-IN">Hindi</option><option value="hinglish">Hinglish (Hindi + English · experimental)</option><option value="mr-IN">Marathi</option><option value="en-US">English (US)</option><option value="bn-IN">Bengali</option><option value="ta-IN">Tamil</option><option value="te-IN">Telugu</option><option value="ur-PK">Urdu</option></select><p class="field-hint">Availability depends on your browser and device.</p></div>
+            <div class="notice"><span>ⓘ</span><p><strong>Current free mode</strong><br />This browser demo captions speech from your microphone. It does not yet transcribe the uploaded video's audio automatically.</p></div>
+          </section>
+          <section class="panel editor-panel">
+            <div class="panel-title"><span class="number">02</span><div><h3>Build your transcript</h3><p>Edit lines and adjust subtitle timing</p></div></div>
+            <div class="speech-box"><div class="speech-status"><span id="micIndicator" class="mic-indicator"></span><span id="speechStatus">Ready to listen</span></div><button id="micBtn" class="mic-btn" type="button"><span>🎙</span> Start microphone captions</button><button id="polishBtn" class="export-btn secondary-btn polish-btn" type="button">✦ Improve transcript with Nemotron</button><p class="field-hint">Optional AI cleanup for existing caption text. Requires your own NVIDIA API key configured securely in a Cloudflare Worker.</p><p class="field-hint">Allow microphone access when your browser asks. Works only in supported browsers, usually over HTTPS.</p></div>
+            <div class="caption-toolbar"><span id="captionCount">0 caption lines</span><div class="toolbar-actions"><button id="addLineBtn" class="small-btn" type="button">＋ Add line</button><button id="clearBtn" class="small-btn quiet-btn" type="button">Clear</button></div></div>
+            <div id="emptyState" class="empty-state"><span class="empty-symbol">Aa</span><strong>Your captions will appear here</strong><p>Start microphone captions or add a line manually to begin editing.</p></div><div id="captionList" class="caption-list"></div><div class="editor-footer"><span>Tip: use timestamps in seconds, e.g. 2.5</span><span id="saveStatus">Stored in this tab only</span></div>
+          </section>
+        </div>
+        <section class="export-panel"><div class="export-copy"><span class="number">03</span><div><h3>Export subtitles</h3><p>Download a subtitle file and use it in your video editor.</p></div></div><div class="export-actions"><button id="exportSrt" class="export-btn primary-btn" type="button">↓ Export .SRT</button><button id="exportVtt" class="export-btn secondary-btn" type="button">↓ Export .VTT</button></div></section>
+      </section>
+      <section class="how-section" id="how-it-works"><div class="eyebrow">SIMPLE BY DESIGN</div><h2>From speech to subtitles.</h2><div class="how-grid"><article><span>01</span><h3>Add a video</h3><p>Preview your local video in the workspace. Your video stays in your browser.</p></article><article><span>02</span><h3>Create & refine</h3><p>Use supported browser speech recognition or add lines manually. Edit text and timings.</p></article><article><span>03</span><h3>Export anywhere</h3><p>Download standard SRT or VTT subtitle files for your editing workflow.</p></article></div></section>
+    </main>
+    <footer><a class="brand footer-brand" href="#"><span class="brand-mark">CC</span><span>caption<span class="brand-light">craft</span></span></a><span>Free MVP · No paid API key required</span></footer>
+  </div>
+  <div id="toast" role="status" aria-live="polite" class="toast"></div>
+  <script src="./config.js"></script><script src="./app.js"></script>
+</body>
+</html>
