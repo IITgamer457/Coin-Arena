@@ -80,12 +80,15 @@
     recorder.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data);};
     const stopped=new Promise((resolve,reject)=>{recorder.onstop=resolve;recorder.onerror=()=>reject(new Error('Browser audio capture failed.'));});
     const wasMuted=media.muted,oldTime=media.currentTime;
-    media.muted=true;
+    // Do not mute the media element: some Android browsers silence the
+    // MediaElementAudioSourceNode when the element's muted flag is set.
+    media.muted=false;
     media.currentTime=0;
     await new Promise((resolve,reject)=>{if(media.readyState>=2)return resolve();media.addEventListener('loadeddata',resolve,{once:true});media.addEventListener('error',()=>reject(new Error('Video could not be decoded by this browser.')),{once:true});});
     recorder.start(500);
     const duration=Number.isFinite(media.duration)?media.duration:0;
     const playbackEnded=new Promise((resolve,reject)=>{
+      media.addEventListener('timeupdate',()=>{if(duration>0)setProgress('',Math.min(14,media.currentTime/duration*14),`Extracting audio: ${Math.floor(media.currentTime)}s / ${Math.ceil(duration)}s`);});
       media.addEventListener('ended',resolve,{once:true});
       media.addEventListener('error',()=>reject(new Error('Video playback failed while extracting audio.')),{once:true});
     });
@@ -134,11 +137,11 @@
       setProgress(' ',0,'Loading video tools…');
       $('progressWrap').classList.remove('hidden');
       const {data,duration}=await extractAudio(file);
-      setProgress('',15,'Loading speech model…');
+      setProgress('',15,'Loading faster Whisper Tiny model…');
       const {pipeline,env}=await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.7.2');
       env.allowLocalModels=false;env.useBrowserCache=true;
-      const transcriber=await pipeline('automatic-speech-recognition','onnx-community/whisper-base',{device:'wasm',progress_callback:(p)=>{if(p.status==='progress'&&p.total)setProgress('',15+Math.min(1,p.loaded/p.total)*40,`Downloading speech model: ${p.file||'model'}`);}});
-      setProgress('',58,'Transcribing speech…');
+      const transcriber=await pipeline('automatic-speech-recognition','onnx-community/whisper-tiny',{device:'wasm',progress_callback:(p)=>{if(p.status==='progress'&&p.total)setProgress('',15+Math.min(1,p.loaded/p.total)*40,`Downloading speech model: ${p.file||'model'}`);}});
+      setProgress('',58,'Transcribing speech with Whisper Tiny…');
       const opts={chunk_length_s:30,stride_length_s:5,return_timestamps:'word'};
       const lang=languageForWhisper($('languageSelect').value);if(lang)opts.language=lang;
       const result=await transcriber(data,opts);
