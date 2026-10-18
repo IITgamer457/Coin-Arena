@@ -29,7 +29,7 @@ export default {
       if(!upstream.ok)return json({error:`NVIDIA API request failed (${upstream.status}). Check your key, quota, and model access.`},502,origin,env);
       const content=data?.choices?.[0]?.message?.content;
       if(typeof content!=="string")return json({error:"NVIDIA returned an empty response."},502,origin,env);
-      let parsed;try{parsed=JSON.parse(content.replace(/^\`\`\`(?:json)?\s*/i,"").replace(/\s*\`\`\`$/,"").trim());}catch{return json({error:"AI returned an invalid format. Please try again."},502,origin,env);}
+      let parsed;try{const start=content.indexOf("{");const end=content.lastIndexOf("}");if(start<0||end<start)throw new Error("invalid");parsed=JSON.parse(content.slice(start,end+1));}catch{return json({error:"AI returned an invalid format. Please try again."},502,origin,env);}
       if(!Array.isArray(parsed.captions)||parsed.captions.length!==body.captions.length||parsed.captions.some(x=>typeof x!=="string"))return json({error:"AI response did not match the caption format. Please try again."},502,origin,env);
       return json({captions:parsed.captions},200,origin,env);
     }catch{return json({error:"Could not connect to NVIDIA API. Please try again."},502,origin,env);}
