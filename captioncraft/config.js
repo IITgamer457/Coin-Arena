@@ -1,3 +1,3 @@
 // Public configuration only. This URL is not a secret.
-// After deploying the Worker, replace the empty string with its HTTPS URL.
-window.CAPTIONCRAFT_API_URL = "";
+// NVIDIA_API_KEY must be added as a Worker Secret in Cloudflare before AI cleanup works.
+window.CAPTIONCRAFT_API_URL = "https://captioncraft-nemotron.wwe303367.workers.dev";
